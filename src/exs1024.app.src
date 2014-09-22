@@ -1,0 +1,8 @@
+{application, exs1024, [
+    {description, "Xorshift1024star PRNG for Erlang"},
+    {vsn, "0.0.1"},
+    {env, []},
+    {registered, []},
+    {modules, [exs1024]},
+    {applications, [kernel, stdlib]}
+]}.
