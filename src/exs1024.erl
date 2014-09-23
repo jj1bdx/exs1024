@@ -63,7 +63,7 @@
 -define(UINT32MASK, 16#ffffffff).
 -define(UINT64MASK, 16#ffffffffffffffff).
 
-%% @doc Calculation of xorshift64star.
+%% @doc Calculation of xorshift1024star.
 %% calc(S0, S1) -> {X, NS1}.
 %% X: random number output
 
@@ -76,9 +76,9 @@ calc(S0, S1) ->
     NS1 = S01 bxor S12,
     {(NS1 * 1181783497276652981) band ?UINT64MASK, NS1}. 
 
-%% @doc Advance xorshift64star state for one step.
+%% @doc Advance xorshift1024star state for one step.
 %% and generate 64bit unsigned integer from
-%% the xorshift64star internal state.
+%% the xorshift1024star internal state.
 
 -spec next(state()) -> {uint64(), state()}.
 
@@ -92,7 +92,7 @@ next({L, RL}) ->
 
 -spec seed0() -> state().
 
-%% @doc Set the default seed value to xorshift64star state
+%% @doc Set the default seed value to xorshift1024star state
 %% in the process directory (Compatible with random:seed0/0).
 
 seed0() ->
@@ -134,7 +134,7 @@ seed() ->
 seed_put(R) ->
     put(exs1024_seed, R).
 
-%% @doc Set the seed value to xorshift64star state in the process directory.
+%% @doc Set the seed value to xorshift1024star state in the process directory.
 %% with the given three-element tuple of unsigned 32-bit integers
 %% (Compatible with random:seed/1).
 
@@ -143,10 +143,11 @@ seed_put(R) ->
 seed({A1, A2, A3}) ->
     seed(A1, A2, A3).
 
-%% @doc Set the seed value to xorshift64star state in the process directory
+%% @doc Set the seed value to xorshift1024star state in the process directory
 %% with the given three unsigned 32-bit integer arguments
 %% (Compatible with random:seed/3).
-%% Multiplicands here: three 32-bit primes
+%% Multiplicands here: three 32-bit primes.
+%% TODO: this seeding isn't complete yet.
 
 -spec seed(integer(), integer(), integer()) -> 'undefined' | state().
 
@@ -171,7 +172,7 @@ seed(A1, A2, A3) ->
         ]).
 
 %% @doc Generate float from
-%% given xorshift64star internal state.
+%% given xorshift1024star internal state.
 %% (Note: 0.0 =&lt; result &lt; 1.0)
 %% (Compatible with random:uniform_s/1)
 
@@ -184,7 +185,7 @@ uniform_s(R0) ->
 -spec uniform() -> float().
 
 %% @doc Generate float
-%% given xorshift64star internal state
+%% given xorshift1024star internal state
 %% in the process dictionary.
 %% (Note: 0.0 =&lt; result &lt; 1.0)
 %% (Compatible with random:uniform/1)
@@ -198,7 +199,7 @@ uniform() ->
     put(exs1024_seed, R2),
     V.
 
-%% @doc Generate integer from given xorshift64star internal state.
+%% @doc Generate integer from given xorshift1024star internal state.
 %% (Note: 0 =&lt; result &lt; MAX (given positive integer))
 -spec uniform_s(pos_integer(), state()) -> {pos_integer(), state()}.
 
@@ -206,7 +207,7 @@ uniform_s(Max, R) when is_integer(Max), Max >= 1 ->
     {V, R1} = next(R),
     {(V rem Max) + 1, R1}.
 
-%% @doc Generate integer from the given TinyMT internal state
+%% @doc Generate integer from the given xorshift1024star internal state
 %% in the process dictionary.
 %% (Note: 1 =&lt; result =&lt; N (given positive integer))
 %% (compatible with random:uniform/1)
