@@ -61,7 +61,7 @@
 
 -opaque state() :: {list(uint64()), list(uint64())}.
 
--define(UINT22MASK, 16#3fffff).
+-define(UINT21MASK, 16#1fffff).
 -define(UINT64MASK, 16#ffffffffffffffff).
 
 %% @doc Calculation of xorshift1024star.
@@ -153,19 +153,19 @@ seed({A1, A2, A3}) ->
     seed(A1, A2, A3).
 
 %% @doc Set the seed value to xorshift1024star state in the process directory
-%% with the given three unsigned 22-bit integer arguments
+%% with the given three unsigned 21-bit integer arguments
 %% (Compatible with random:seed/3).
-%% Multiplicands here: three 22-bit primes.
+%% Multiplicands here: three 21-bit primes.
 %% TODO: this seeding isn't complete yet.
 
 -spec seed(integer(), integer(), integer()) -> 'undefined' | state().
 
 seed(A1, A2, A3) ->
-    B1 = (((A1 band ?UINT22MASK) + 1) * 4194277) band ?UINT22MASK,
-    B2 = (((A2 band ?UINT22MASK) + 1) * 4194287) band ?UINT22MASK,
-    B3 = (((A3 band ?UINT22MASK) + 1) * 4194301) band ?UINT22MASK,
+    B1 = (((A1 band ?UINT21MASK) + 1) * 2097131) band ?UINT21MASK,
+    B2 = (((A2 band ?UINT21MASK) + 1) * 2097133) band ?UINT21MASK,
+    B3 = (((A3 band ?UINT21MASK) + 1) * 2097143) band ?UINT21MASK,
     seed_put({exs64l:gen1024(
-                  (B1 bsl 45) bor (B2 bsl 23) bor (B3 bsl 1) bor 1),
+                  (B1 bsl 43) bor (B2 bsl 22) bor (B3 bsl 1) bor 1),
               []}).
 
 %% @doc Generate float from
