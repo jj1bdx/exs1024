@@ -60,7 +60,7 @@
 
 -opaque state() :: {list(uint64()), list(uint64())}.
 
--define(UINT32MASK, 16#ffffffff).
+-define(UINT22MASK, 16#3fffff).
 -define(UINT64MASK, 16#ffffffffffffffff).
 
 %% @doc Calculation of xorshift1024star.
@@ -144,32 +144,20 @@ seed({A1, A2, A3}) ->
     seed(A1, A2, A3).
 
 %% @doc Set the seed value to xorshift1024star state in the process directory
-%% with the given three unsigned 32-bit integer arguments
+%% with the given three unsigned 22-bit integer arguments
 %% (Compatible with random:seed/3).
-%% Multiplicands here: three 32-bit primes.
+%% Multiplicands here: three 22-bit primes.
 %% TODO: this seeding isn't complete yet.
 
 -spec seed(integer(), integer(), integer()) -> 'undefined' | state().
 
 seed(A1, A2, A3) ->
-    seed_put(
-        [(((A1 band ?UINT32MASK) * 4294967197 + 1)),
-         (((A2 band ?UINT32MASK) * 4294967231 + 1)),
-         (((A3 band ?UINT32MASK) * 4294967279 + 1)),
-         16#3456789abcdef012,
-         16#456789abcdef0123,
-         16#56789abcdef01234,
-         16#6789abcdef012345,
-         16#789abcdef0123456,
-         16#89abcdef01234567,
-         16#9abcdef012345678,
-         16#abcdef0123456789,
-         16#bcdef0123456789a,
-         16#cdef0123456789ab,
-         16#def0123456789abc,
-         16#ef0123456789abcd,
-         16#f0123456789abcde
-        ]).
+    B1 = (((A1 band ?UINT22MASK) + 1) * 4194277) band ?UINT22MASK,
+    B2 = (((A2 band ?UINT22MASK) + 1) * 4194287) band ?UINT22MASK,
+    B3 = (((A3 band ?UINT22MASK) + 1) * 4194301) band ?UINT22MASK,
+    seed_put({exs64l:gen1024(
+                  (B1 bsl 45) bor (B2 bsl 23) bor (B3 bsl 1) bor 1),
+              []}).
 
 %% @doc Generate float from
 %% given xorshift1024star internal state.
