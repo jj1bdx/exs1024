@@ -33,6 +33,7 @@
      seed/0,
      seed/1,
      seed/3,
+     seed_list/1,
      uniform/0,
      uniform/1,
      uniform_s/1,
@@ -133,6 +134,14 @@ seed() ->
 
 seed_put(R) ->
     put(exs1024_seed, R).
+
+%% @doc Put the list of 16 64-bit integers as the seed into the
+%% process dictionary.
+
+-spec seed_list(seedval()) -> 'undefined' | state().
+
+seed_list(L) when is_list(L), length(L) =:= 16 ->
+    seed_put({L, []}).
 
 %% @doc Set the seed value to xorshift1024star state in the process directory.
 %% with the given three-element tuple of unsigned 32-bit integers
