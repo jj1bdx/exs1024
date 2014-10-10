@@ -65,12 +65,12 @@ next(R) ->
 %% of the xorshift64star random sequence
 %% from a given 64-bit seed.
 
--spec gen1024(state()) -> list(uint64()).
+-spec gen1024(uint64()) -> list(uint64()).
 
 gen1024(R) ->
     gen1024(16, R, []).
 
--spec gen1024(non_neg_integer(), state(), list(uint64())) -> list(uint64()).
+-spec gen1024(non_neg_integer(), uint64(), list(uint64())) -> list(uint64()).
 
 gen1024(0, _, L) ->
     L;
