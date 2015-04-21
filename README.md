@@ -41,3 +41,6 @@ Algorithm by Sebastiano Vigna, and he made it public domain.
 
 Programmed by Kenji Rikitake.
 
+## Contributors
+
+Dan Gudmundsson
