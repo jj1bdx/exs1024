@@ -42,12 +42,18 @@ testloop(N, R, L) ->
 testloop_test(_Config) ->
     Refval = test_refval(),
     Testval = testloop(length(Refval)),
-    Refval =:= Testval.
+    case Refval =:= Testval of
+        true -> ok;
+        Else -> exit(Else)
+    end.
 
 gen1024_test(_Config) ->
     Refval = gen1024_refval(),
     Testval = exs64l:gen1024(1234567890123456789),
-    Refval =:= Testval.
+    case Refval =:= Testval of
+        true -> ok;
+        Else -> exit(Else)
+    end.
 
 gen1024_refval() ->
     [12584286159105339270,13884968302468831992,

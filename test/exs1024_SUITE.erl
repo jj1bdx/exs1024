@@ -43,7 +43,10 @@ testloop(N, R, L) ->
 testloop_test(_Config) ->
     Refval = test_refval(),
     Testval = testloop(length(Refval)),
-    Refval =:= Testval.
+    case Refval =:= Testval of
+        true -> ok;
+        Else -> exit(Else)
+    end.
 
 test_refval() ->
     [
