@@ -47,6 +47,7 @@
 
 -opaque state() :: uint64().
 
+-define(UINT39MASK, 16#0000007fffffffff).
 -define(UINT64MASK, 16#ffffffffffffffff).
 
 %% @doc Advance xorshift64star state for one step.
@@ -57,7 +58,7 @@
 
 next(R) ->
     R1 = R bxor (R bsr 12),
-    R2 = R1 bxor ((R1 bsl 25) band ?UINT64MASK),
+    R2 = R1 bxor ((R1 band ?UINT39MASK) bsl 25),
     R3 = R2 bxor (R2 bsr 27),
     {(R3 * 2685821657736338717) band ?UINT64MASK, R3}.
 
