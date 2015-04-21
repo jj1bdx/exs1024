@@ -62,6 +62,7 @@
 -opaque state() :: {list(uint64()), list(uint64())}.
 
 -define(UINT21MASK, 16#1fffff).
+-define(UINT33MASK, 16#1ffffffff).
 -define(UINT64MASK, 16#ffffffffffffffff).
 
 %% @doc Calculation of xorshift1024star.
@@ -71,7 +72,7 @@
 -spec calc(uint64(), uint64()) -> {uint64(), uint64()}.
 
 calc(S0, S1) ->
-    S11 = S1 bxor ((S1 bsl 31) band ?UINT64MASK),
+    S11 = S1 bxor ((S1 band ?UINT33MASK) bsl 31),
     S12 = S11 bxor (S11 bsr 11),
     S01 = S0 bxor (S0 bsr 30),
     NS1 = S01 bxor S12,
