@@ -10,6 +10,7 @@
 #include <inttypes.h>
 
 uint64_t next(void);
+void jump(void);
 
 extern uint64_t s[16];
 extern int p;
@@ -44,10 +45,12 @@ int main(void)
     s[13] = 0xdef0123456789abcULL;
     s[14] = 0xef0123456789abcdULL;
     s[15] = 0xf0123456789abcdeULL;
+
 	print_s();
 
     for (i = 0; i < 1000; i ++) {
         printf("next = %" PRIu64 " ", next());
 		print_s();
+        jump();
     }
 }
