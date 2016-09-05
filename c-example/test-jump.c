@@ -52,5 +52,7 @@ int main(void)
         printf("next = %" PRIu64 " ", next());
 		print_s();
         jump();
+        printf("jump ");
+		print_s();
     }
 }
