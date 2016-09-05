@@ -37,7 +37,8 @@
      uniform/0,
      uniform/1,
      uniform_s/1,
-     uniform_s/2
+     uniform_s/2,
+     jump/1
  ]).
 
 -export_type([
@@ -221,3 +222,57 @@ uniform(N) when is_integer(N), N >= 1 ->
     put(exs1024_seed, R1),
     V.
 
+%% @doc This is the jump function for the generator. It is equivalent
+%% to 2^512 calls to next(); it can be used to generate 2^512
+%% non-overlapping subsequences for parallel computations.
+
+-define(JUMPCONSTHEAD, 16#84242f96eca9c41d).
+-define(JUMPCONSTTAIL,
+       [16#a3c65b8776f96855,
+        16#5b34a39f070b5837,
+        16#4489affce4f31a1e,
+        16#2ffeeb0a48316f40,
+        16#dc2d9891fe68c022,
+        16#3659132bb12fea70,
+        16#aac17d8efa43cab8,
+        16#c4cb815590989b13,
+        16#5ee975283d71c93b,
+        16#691548c86c1bd540,
+        16#7910c41d10a1e6a5,
+        16#0b5fc64563b3e2a8,
+        16#047f7684e9fc949d,
+        16#b99181f2d8f685ca,
+        16#284600e3f30e38c3]).
+-define(JUMPELEMLEN, 64).
+
+-spec jump(state()) -> state().
+
+jump(S) ->
+    {_L, RL} = S,
+    jump(S, length(RL), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         ?JUMPCONSTTAIL, ?JUMPCONSTHEAD, ?JUMPELEMLEN).
+
+-spec jump(state(), non_neg_integer(), list(non_neg_integer()),
+    list(pos_integer()), pos_integer(), pos_integer()) -> state().
+
+jump(_S, P, AS, [], _J, 0) ->
+    % debug print code
+    % io:format("jump result AS = ~p~n", [AS]),
+    % io:format("jump result S = ~p~n", [S]),
+    {ASL, ASR} = lists:split(16 - P, AS),
+    {ASL, lists:reverse(ASR)};
+jump(S, P, AS, JL, _J, 0) ->
+    [H|T] = JL, 
+    jump(S, P, AS, T, H, ?JUMPELEMLEN);
+jump(S, P, AS, JL, J, N) ->
+    case (J band 1) of
+        1 ->
+            {L, RL} = S,
+            AS2 = lists:zipwith(fun(X, Y) -> X bxor Y end,
+                        AS, L ++ lists:reverse(RL)),
+            {_, NS} = next(S),
+            jump(NS, P, AS2, JL, J bsr 1, N-1);
+        0 ->
+            {_, NS} = next(S),
+            jump(NS, P, AS, JL, J bsr 1, N-1)
+    end.
