@@ -249,30 +249,32 @@ uniform(N) when is_integer(N), N >= 1 ->
 
 jump(S) ->
     {_L, RL} = S,
-    jump(S, length(RL), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         ?JUMPCONSTTAIL, ?JUMPCONSTHEAD, ?JUMPELEMLEN).
+    P = length(RL),
+    AS = jump(S, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         ?JUMPCONSTTAIL, ?JUMPCONSTHEAD, ?JUMPELEMLEN),
+    {ASL, ASR} = lists:split(16 - P, AS),
+    {ASL, lists:reverse(ASR)}.
 
--spec jump(state(), non_neg_integer(), list(non_neg_integer()),
-    list(pos_integer()), pos_integer(), pos_integer()) -> state().
+-spec jump(state(), list(non_neg_integer()),
+    list(pos_integer()), pos_integer(), pos_integer()) ->
+        list(non_neg_integer()).
 
-jump(_S, P, AS, [], _J, 0) ->
+jump(_S, AS, [], _J, 0) ->
     % debug print code
     % io:format("jump result AS = ~p~n", [AS]),
     % io:format("jump result S = ~p~n", [S]),
-    {ASL, ASR} = lists:split(16 - P, AS),
-    {ASL, lists:reverse(ASR)};
-jump(S, P, AS, JL, _J, 0) ->
+    AS;
+jump(S, AS, JL, _J, 0) ->
     [H|T] = JL, 
-    jump(S, P, AS, T, H, ?JUMPELEMLEN);
-jump(S, P, AS, JL, J, N) ->
+    jump(S, AS, T, H, ?JUMPELEMLEN);
+jump(S, AS, JL, J, N) ->
+    {_, NS} = next(S),
     case (J band 1) of
         1 ->
             {L, RL} = S,
             AS2 = lists:zipwith(fun(X, Y) -> X bxor Y end,
                         AS, L ++ lists:reverse(RL)),
-            {_, NS} = next(S),
-            jump(NS, P, AS2, JL, J bsr 1, N-1);
+            jump(NS, AS2, JL, J bsr 1, N-1);
         0 ->
-            {_, NS} = next(S),
-            jump(NS, P, AS, JL, J bsr 1, N-1)
+            jump(NS, AS, JL, J bsr 1, N-1)
     end.
