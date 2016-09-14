@@ -247,7 +247,7 @@ uniform(N) when is_integer(N), N >= 1 ->
 %% Jump constant here split into 58 bits for speed
 -define(JUMPCONSTHEAD, 16#00242f96eca9c41d).
 -define(JUMPCONSTTAIL,
-	    [16#0196e1ddbe5a1561,
+        [16#0196e1ddbe5a1561,
          16#0239f070b5837a3c,
          16#03f393cc68796cd2,
          16#0248316f404489af,
@@ -266,7 +266,7 @@ uniform(N) when is_integer(N), N >= 1 ->
          16#0000000a118038fc]).
 -define(JUMPTOTALLEN, 1024).
 -define(JUMPELEMLEN, 58).
--define(MAXRINGLEN, 16).
+-define(RINGLEN, 16).
 
 -spec jump(state()) -> state().
 
@@ -274,7 +274,7 @@ jump({L, RL}) ->
     P = length(RL),
     AS = jump({L, RL}, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
          ?JUMPCONSTTAIL, ?JUMPCONSTHEAD, ?JUMPELEMLEN, ?JUMPTOTALLEN),
-    {ASL, ASR} = lists:split(?MAXRINGLEN - P, AS),
+    {ASL, ASR} = lists:split(?RINGLEN - P, AS),
     {ASL, lists:reverse(ASR)}.
 
 -spec jump(state(), list(non_neg_integer()),
@@ -283,8 +283,8 @@ jump({L, RL}) ->
 
 jump(_, AS, _, _, _, 0) ->
     AS;
-jump(S, AS, [H|T], _, 0, JTL) ->
-    jump(S, AS, T, H, ?JUMPELEMLEN, JTL);
+jump(S, AS, [H|T], _, 0, TN) ->
+    jump(S, AS, T, H, ?JUMPELEMLEN, TN);
 jump({L, RL}, AS, JL, J, N, TN) ->
     {_, NS} = next({L, RL}),
     case (J band 1) of
