@@ -226,24 +226,45 @@ uniform(N) when is_integer(N), N >= 1 ->
 %% to 2^512 calls to next(); it can be used to generate 2^512
 %% non-overlapping subsequences for parallel computations.
 
--define(JUMPCONSTHEAD, 16#84242f96eca9c41d).
+%-define(JUMPCONSTHEAD, 16#84242f96eca9c41d).
+%-define(JUMPCONSTTAIL,
+%       [16#a3c65b8776f96855,
+%        16#5b34a39f070b5837,
+%        16#4489affce4f31a1e,
+%        16#2ffeeb0a48316f40,
+%        16#dc2d9891fe68c022,
+%        16#3659132bb12fea70,
+%        16#aac17d8efa43cab8,
+%        16#c4cb815590989b13,
+%        16#5ee975283d71c93b,
+%        16#691548c86c1bd540,
+%        16#7910c41d10a1e6a5,
+%        16#0b5fc64563b3e2a8,
+%        16#047f7684e9fc949d,
+%        16#b99181f2d8f685ca,
+%        16#284600e3f30e38c3]).
+
+-define(JUMPCONSTHEAD, 16#00242f96eca9c41d).
 -define(JUMPCONSTTAIL,
-       [16#a3c65b8776f96855,
-        16#5b34a39f070b5837,
-        16#4489affce4f31a1e,
-        16#2ffeeb0a48316f40,
-        16#dc2d9891fe68c022,
-        16#3659132bb12fea70,
-        16#aac17d8efa43cab8,
-        16#c4cb815590989b13,
-        16#5ee975283d71c93b,
-        16#691548c86c1bd540,
-        16#7910c41d10a1e6a5,
-        16#0b5fc64563b3e2a8,
-        16#047f7684e9fc949d,
-        16#b99181f2d8f685ca,
-        16#284600e3f30e38c3]).
--define(JUMPELEMLEN, 64).
+	    [16#0196e1ddbe5a1561,
+		 16#0239f070b5837a3c,
+		 16#03f393cc68796cd2,
+		 16#0248316f404489af,
+		 16#039a30088bffbac2,
+		 16#02fea70dc2d9891f,
+		 16#032ae0d9644caec4,
+		 16#0313aac17d8efa43,
+		 16#02f132e055642626,
+		 16#01ee975283d71c93,
+		 16#00552321b06f5501,
+		 16#00c41d10a1e6a569,
+		 16#019158ecf8aa1e44,
+		 16#004e9fc949d0b5fc,
+		 16#0363da172811fdda,
+		 16#030e38c3b99181f2,
+		 16#0000000a118038fc]).
+-define(JUMPTOTALLEN, 1024).
+-define(JUMPELEMLEN, 58).
 
 -spec jump(state()) -> state().
 
@@ -251,25 +272,26 @@ jump(S) ->
     {_L, RL} = S,
     P = length(RL),
     AS = jump(S, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         ?JUMPCONSTTAIL, ?JUMPCONSTHEAD, ?JUMPELEMLEN),
+         ?JUMPCONSTTAIL, ?JUMPCONSTHEAD, ?JUMPELEMLEN, ?JUMPTOTALLEN),
     {ASL, ASR} = lists:split(16 - P, AS),
     {ASL, lists:reverse(ASR)}.
 
 -spec jump(state(), list(non_neg_integer()),
-    list(pos_integer()), pos_integer(), pos_integer()) ->
+    list(non_neg_integer()), non_neg_integer(),
+    non_neg_integer(), non_neg_integer()) ->
         list(non_neg_integer()).
 
-jump(_, AS, [], _, 0) ->
+jump(_, AS, _, _, _, 0) ->
     AS;
-jump(S, AS, [H|T], _, 0) ->
-    jump(S, AS, T, H, ?JUMPELEMLEN);
-jump({L, RL}, AS, JL, J, N) ->
+jump(S, AS, [H|T], _, 0, JTL) ->
+    jump(S, AS, T, H, ?JUMPELEMLEN, JTL);
+jump({L, RL}, AS, JL, J, N, TN) ->
     {_, NS} = next({L, RL}),
     case (J band 1) of
         1 ->
             AS2 = lists:zipwith(fun(X, Y) -> X bxor Y end,
                         AS, L ++ lists:reverse(RL)),
-            jump(NS, AS2, JL, J bsr 1, N-1);
+            jump(NS, AS2, JL, J bsr 1, N-1, TN-1);
         0 ->
-            jump(NS, AS, JL, J bsr 1, N-1)
+            jump(NS, AS, JL, J bsr 1, N-1, TN-1)
     end.

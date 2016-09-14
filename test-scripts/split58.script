@@ -1,0 +1,25 @@
+#!/usr/bin/env escript
+%% -*- erlang -*-
+%%! -pa ./ebin
+
+%% Note: execute from the root path
+
+%% Split a jump constant into 58-bit unsigned integers
+
+-define(JUMPCONST, 16#284600e3f30e38c3b99181f2d8f685ca047f7684e9fc949d0b5fc64563b3e2a87910c41d10a1e6a5691548c86c1bd5405ee975283d71c93bc4cb815590989b13aac17d8efa43cab83659132bb12fea70dc2d9891fe68c0222ffeeb0a48316f404489affce4f31a1e5b34a39f070b5837a3c65b8776f9685584242f96eca9c41d).
+-define(LEN, 1024).
+-define(WORDLEN, 58).
+-define(WORDMASK, 16#03ffffffffffffff).
+
+loop(_, A, 0) -> lists:reverse(A);
+loop(X, A, L) ->
+    case L >= ?WORDLEN of
+        true ->
+            loop(X bsr ?WORDLEN, [X band ?WORDMASK | A], L - ?WORDLEN);
+        false ->
+            loop(0, [X|A], 0)
+    end.
+
+main(_) ->
+    L = loop(?JUMPCONST, [], ?LEN),
+    lists:map(fun(X) -> io:format("16#~16.16.0b,~n",[X]) end, L).
