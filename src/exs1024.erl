@@ -259,19 +259,14 @@ jump(S) ->
     list(pos_integer()), pos_integer(), pos_integer()) ->
         list(non_neg_integer()).
 
-jump(_S, AS, [], _J, 0) ->
-    % debug print code
-    % io:format("jump result AS = ~p~n", [AS]),
-    % io:format("jump result S = ~p~n", [S]),
+jump(_, AS, [], _, 0) ->
     AS;
-jump(S, AS, JL, _J, 0) ->
-    [H|T] = JL, 
+jump(S, AS, [H|T], _, 0) ->
     jump(S, AS, T, H, ?JUMPELEMLEN);
-jump(S, AS, JL, J, N) ->
-    {_, NS} = next(S),
+jump({L, RL}, AS, JL, J, N) ->
+    {_, NS} = next({L, RL}),
     case (J band 1) of
         1 ->
-            {L, RL} = S,
             AS2 = lists:zipwith(fun(X, Y) -> X bxor Y end,
                         AS, L ++ lists:reverse(RL)),
             jump(NS, AS2, JL, J bsr 1, N-1);
