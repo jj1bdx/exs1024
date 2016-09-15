@@ -112,6 +112,27 @@ test_speed_orig_uniform(P, Q) ->
     {_, T} = statistics(runtime),
     T.
 
+-spec test_speed_exs1024_jump_rec1(list(exs1024:state()), non_neg_integer(), non_neg_integer(), non_neg_integer(), exs1024:state()) -> 'ok'.
+
+test_speed_exs1024_jump_rec1(Acc, 0, _, _, _) ->
+    _ = lists:reverse(Acc),
+    ok;
+test_speed_exs1024_jump_rec1(Acc, X, 0, R, I) ->
+    _ = lists:reverse(Acc),
+    test_speed_exs1024_jump_rec1([], X - 1, R, R, I);
+test_speed_exs1024_jump_rec1(Acc, X, Q, R, I) ->
+    I2 = exs1024:jump(I),
+    test_speed_exs1024_jump_rec1([I2|Acc], X, Q - 1, R , I2).
+
+-spec test_speed_exs1024_jump(non_neg_integer(), non_neg_integer()) -> non_neg_integer().
+
+test_speed_exs1024_jump(P, Q) ->
+    _ = statistics(runtime),
+    I = exs1024:seed(),
+    ok = test_speed_exs1024_jump_rec1([], P, Q, Q, I),
+    {_, T} = statistics(runtime),
+    T.
+
 -spec test_speed() -> 'ok'.
 
 test_speed() ->
@@ -119,5 +140,7 @@ test_speed() ->
               [{test_speed_orig_uniform(100, 10000),
                 test_speed_orig_uniform_n(100, 10000),
                 test_speed_exs1024_uniform(100, 10000),
-                test_speed_exs1024_uniform_n(100, 10000)}
+                test_speed_exs1024_uniform_n(100, 10000),
+                % note: the jump function rounds is 1/1000th of the others
+                test_speed_exs1024_jump(1, 1000)}
               ]).
