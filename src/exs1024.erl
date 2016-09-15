@@ -1,10 +1,10 @@
 %% @author Kenji Rikitake <kenji.rikitake@acm.org>
-%% @copyright 2014 Kenji Rikitake
+%% @copyright 2014-2016 Kenji Rikitake
 %% @doc Xorshift1024star for Erlang
 %% @end
 %% (MIT License)
 %%
-%% Copyright (c) 2014 Kenji Rikitake. All rights reserved.
+%% Copyright (c) 2014-2016 Kenji Rikitake.
 %%
 %% Permission is hereby granted, free of charge, to any person obtaining a copy of
 %% this software and associated documentation files (the "Software"), to deal in
@@ -225,6 +225,8 @@ uniform(N) when is_integer(N), N >= 1 ->
 %% @doc This is the jump function for the generator. It is equivalent
 %% to 2^512 calls to next(); it can be used to generate 2^512
 %% non-overlapping subsequences for parallel computations.
+%% Note: the jump function takes ~2000 times of the execution time of
+%% next/1.
 
 %% Jump constant in 64-bit-split 1024-bit number:
 %% [16#84242f96eca9c41d,
