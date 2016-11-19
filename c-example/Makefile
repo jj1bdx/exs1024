@@ -7,11 +7,11 @@ CFLAGS = -O0 -g -Wall
 
 OBJECTS = $(SOURCES:.c=.o)
 SOURCES = xorshift1024star.c test.c test-jump.c test-jump-gen.c
-TESTOBJECTS = xorshift1024star.c test.c
+TESTOBJECTS = xorshift1024star.o test.o
 TESTEXEC = test
-TESTJUMPOBJECTS = xorshift1024star.c test-jump.c
+TESTJUMPOBJECTS = xorshift1024star.o test-jump.o
 TESTJUMPEXEC = test-jump
-TESTJUMPGENOBJECTS = xorshift1024star.c test-jump-gen.c
+TESTJUMPGENOBJECTS = xorshift1024star.o test-jump-gen.o
 TESTJUMPGENEXEC = test-jump-gen
 
 all: $(OBJECTS) $(TESTEXEC) $(TESTJUMPEXEC) $(TESTJUMPGENEXEC)
